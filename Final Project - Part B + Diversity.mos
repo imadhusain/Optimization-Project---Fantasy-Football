@@ -1,0 +1,133 @@
+! Optimization Project By:
+! Husain Radiowala
+! Shruti Arvind Jhibakate
+! Dan Schwendler
+! Syed Imad Husain
+
+
+model ModelName
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!sample declarations section
+declarations
+	! Set Definition
+	P=1..100
+	W=1..5
+	T=1..2
+	D=5
+	
+	! Variables
+	x:array(P,T) of mpvar
+	!Data
+	names:array(P) of string
+	position:array(P) of string
+	sal:array(P) of real
+	score:array(P) of real
+	popul:array(P) of integer
+	matrix:array(P,W) of real
+	B:array(P) of mpvar
+end-declarations
+
+! Set x to Binary
+forall(i in P, j in T) do
+	x(i,j) is_binary
+end-do
+
+forall(i in P) do
+	B(i) is_binary
+end-do
+	
+initializations from 'names.txt'
+names
+end-initializations
+
+initializations from 'popul.txt'
+popul
+end-initializations
+
+initializations from 'position.txt'
+position
+end-initializations
+	
+initializations from 'sal.txt'
+sal
+end-initializations
+
+initializations from 'score.txt'
+score
+end-initializations	
+
+initializations from 'matrix.txt'
+matrix
+end-initializations	
+	
+! Model
+Obj:=sum(i in P, j in T)x(i,j)*score(i)
+
+! Conditions
+forall(j in T) do 
+sum(i in P)x(i,j)=6
+sum(i in P)x(i,j)*sal(i)<=50000
+sum(i in P)x(i,j)*matrix(i,1)=1
+sum(i in P)x(i,j)*matrix(i,2)=1
+sum(i in P)x(i,j)*matrix(i,3)>=1
+sum(i in P)x(i,j)*matrix(i,4)>=1
+sum(i in P)x(i,j)*matrix(i,5)>=1
+sum(i in P)x(i,j)*popul(i)>=50
+end-do
+
+forall(i in P) do 
+B(i) >= x(i,1) + x(i,2) -1
+end-do
+
+sum(i in P)B(i)<=D
+
+
+maximize(Obj)
+! Output
+
+
+forall(i in P)  do
+	writeln("Name(",i,") = ",(names(i)))
+end-do
+
+forall(i in P)  do
+	writeln("Position(",i,") = ",(position(i)))
+end-do
+
+forall(i in P)  do
+	writeln("Salary(",i,") = ",(sal(i)))
+end-do
+
+forall(i in P)  do
+	writeln("Score(",i,") = ",(score(i)))
+end-do
+
+forall(i in P, j in W)  do
+	writeln("Matrix(",i,",",j,") = ",(matrix(i,j)))
+end-do
+
+writeln("\nFinal 12 Players are\n")
+
+writeln("Team Index is 1\n")
+
+forall(i in P | getsol(x(i,1))>=1)  do
+	writeln("Player Index is ",i)
+	writeln("Player ","is ",names(i)," Position is ",position(i)," Salary is ", sal(i), " Score is ", score(i),"\n")
+end-do
+
+writeln("Team Index is 2\n")
+
+forall(i in P | getsol(x(i,2))>=1)  do
+	writeln("Player Index is ",i)
+	writeln("Player ","is ",names(i)," Position is ",position(i)," Salary is ", sal(i), " Score is ", score(i),"\n")
+end-do
+
+	writeln("\nTotal Salary Team 1 is = ",getsol(sum(i in P)x(i,1)*sal(i)))
+	writeln("\nTotal Score Team 1 is = ",getsol(sum(i in P)x(i,1)*score(i)))
+	writeln("\nTotal Popularity Team 1 is = ",getsol(sum(i in P)x(i,1)*popul(i)))
+	writeln("\nTotal Salary Team 2 is = ",getsol(sum(i in P)x(i,2)*sal(i)))
+	writeln("\nTotal Score Team 2 is = ",getsol(sum(i in P)x(i,2)*score(i)))
+	writeln("\nTotal Popularity Team 2 is = ",getsol(sum(i in P)x(i,2)*popul(i)))
+	
+end-model

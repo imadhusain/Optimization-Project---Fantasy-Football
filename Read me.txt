@@ -1,0 +1,18 @@
+1. Three Xpress IVE (.mos) Files are 
+a. Final Project – Part A  (Model 1)
+b. Final Project – Part B  ( Model 2)
+c. Final Project – Part B + Diversity Criteria (Model 3)
+
+2. One Excel File is attached PlayersData.xls – containing the final dataset 
+
+3. Six Text Files are – which is the final Dataset split into .txt for input to Xpress-IVE 
+a. names.txt 
+b. position.txt 
+c. sal.txt 
+d. score.txt 
+e. matrix.txt 
+f. popul.txt 
+
+4. Ignore other files. 
+
+5. To execute this project, you will have to place the data files in the same folder as the Xpress Code files

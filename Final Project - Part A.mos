@@ -1,0 +1,96 @@
+! Optimization Project By:
+! Husain Radiowala
+! Shruti Arvind Jhibakate
+! Dan Schwendler
+! Syed Imad Husain
+
+model ModelName
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!sample declarations section
+declarations
+	! Set Definition
+	P=1..100 !players
+	W=1..5  !positions
+	Wsubset=1..2 !position subset for addiotnal constraints
+	
+	! Variables
+	x:array(P) of mpvar
+	!Data
+	names:array(P) of string
+	position:array(P) of string
+	sal:array(P) of real
+	score:array(P) of real
+	matrix:array(P,W) of real
+	
+end-declarations
+
+! Set x to Binary
+forall(i in P) do
+	x(i) is_binary
+end-do
+	
+initializations from 'names.txt'
+names
+end-initializations
+
+initializations from 'position.txt'
+position
+end-initializations
+	
+initializations from 'sal.txt'
+sal
+end-initializations
+
+initializations from 'score.txt'
+score
+end-initializations	
+
+initializations from 'matrix.txt'
+matrix
+end-initializations	
+	
+! Model
+Obj:=sum(i in P)x(i)*score(i)
+
+! Conditions
+sum(i in P)x(i)=6 !each team has 6 players
+sum(i in P)x(i)*sal(i)<=50000 !resultant salary at most 50000
+forall(j in W)sum(i in P)x(i)*matrix(i,j) >= 1 
+forall(j in Wsubset)sum(i in P)x(i)*matrix(i,j) <= 1 
+
+maximize(Obj)
+! Output
+
+
+forall(i in P)  do
+	writeln("Name(",i,") = ",(names(i)))
+end-do
+
+forall(i in P)  do
+	writeln("Position(",i,") = ",(position(i)))
+end-do
+
+forall(i in P)  do
+	writeln("Salary(",i,") = ",(sal(i)))
+end-do
+
+forall(i in P)  do
+	writeln("Score(",i,") = ",(score(i)))
+end-do
+
+forall(i in P, j in W)  do
+	writeln("Matrix(",i,",",j,") = ",(matrix(i,j)))
+end-do
+
+writeln("\nFinal 6 Players are\n")
+
+forall(i in P | getsol(x(i))>=1)  do
+	writeln("Player Index is ",i)
+	writeln("Player ","is ",names(i)," Position is ",position(i)," Salary is ", sal(i), " Score is ", score(i),"\n")
+end-do
+
+	writeln("\nTotal Salary is = ",getsol(sum(i in P)x(i)*sal(i)))
+	writeln("\nTotal Score is = ",getsol(sum(i in P)x(i)*score(i)))
+	
+end-model
